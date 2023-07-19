@@ -59,18 +59,43 @@ public class InputControlbl : MonoBehaviour
 
         if(Physics.Raycast(Camera.main.transform.position, transform.forward, out _hit))
         {
-            Vector3 localBlockPos = RoundVector3ToDown(_hit.point - _hit.transform.localPosition + CorrectionOnNormal(_hit.normal));
-            Vector2Int GlobalChunkCoordinate = new Vector2Int((int)(_hit.transform.localPosition / 16)[0], (int)(_hit.transform.localPosition / 16)[2]);
+            Vector3 localBlockPos = GetLocalBlockPos(_hit);
+            Vector2Int GlobalChunkCoordinate = GetGlobalChunkPos(_hit);
+            int[,,] newChunkBlockMaterial = new int[16, 128, 16];
+            
             Debug.Log(new Vector3((int)localBlockPos[0], (int)localBlockPos[1], (int)localBlockPos[2]));
-            GameWorld._chunksData[GlobalChunkCoordinate][(int)localBlockPos[0], (int)localBlockPos[1], (int)localBlockPos[2]] = 1;
+            GameWorldRenderer._terrainChunks[GlobalChunkCoordinate].ChunkBlocksMaterial[(int)localBlockPos[0], (int)localBlockPos[1], (int)localBlockPos[2]] = 1;
+            newChunkBlockMaterial = GameWorldRenderer._terrainChunks[GlobalChunkCoordinate].ChunkBlocksMaterial;
             GameWorldRenderer._terrainChunks.Remove(GlobalChunkCoordinate);
             GameWorldRenderer._terrainChunks[GlobalChunkCoordinate] = Instantiate(chunkPrefab);
             GameWorldRenderer._terrainChunks[GlobalChunkCoordinate].ChunkCoordinate = GlobalChunkCoordinate;
-            GameWorldRenderer._terrainChunks[GlobalChunkCoordinate].ChunkBlocksMaterial = GameWorld._chunksData[GlobalChunkCoordinate];
-            Destroy(_hit.collider.gameObject);
+            GameWorldRenderer._terrainChunks[GlobalChunkCoordinate].ChunkBlocksMaterial = newChunkBlockMaterial;
+            Destroy(GameWorldRenderer._terrainChunks[GlobalChunkCoordinate].gameObject);
 
         }
 
+    }
+    private Vector2Int GetGlobalChunkPos(RaycastHit _hit)
+    {
+        Vector2Int assumedGlobalChunkPos = new Vector2Int((int)(_hit.transform.localPosition / 16)[0], (int)(_hit.transform.localPosition / 16)[2]);
+        Vector2Int GlobalChunkPos = assumedGlobalChunkPos;
+        Vector3 assumedLocalBlockPos = RoundVector3ToDown(_hit.point - _hit.transform.localPosition + CorrectionOnNormal(_hit.normal));
+        if (assumedLocalBlockPos[0] > 15) GlobalChunkPos += new Vector2Int(1, 0);
+        if (assumedLocalBlockPos[0] < 0) GlobalChunkPos += new Vector2Int(-1, 0);
+        if (assumedLocalBlockPos[2] > 15) GlobalChunkPos += new Vector2Int(0, 1);
+        if (assumedLocalBlockPos[2] < 0) GlobalChunkPos += new Vector2Int(0, -1);
+        return GlobalChunkPos;
+    }
+    private Vector3 GetLocalBlockPos(RaycastHit _hit)
+    {   
+        Vector3 assumedLocalBlockPos = RoundVector3ToDown(_hit.point - _hit.transform.localPosition + CorrectionOnNormal(_hit.normal));
+        Vector3 localBlockPos;
+        if (assumedLocalBlockPos[0] > 15) assumedLocalBlockPos[0] = 0;
+        if (assumedLocalBlockPos[0] < 0) assumedLocalBlockPos[0] = 15;
+        if (assumedLocalBlockPos[2] > 15) assumedLocalBlockPos[2] = 0;
+        if (assumedLocalBlockPos[2] < 0) assumedLocalBlockPos[2] = 15;
+        localBlockPos = assumedLocalBlockPos;
+        return localBlockPos;
     }
 
     private void DestroyBlock()

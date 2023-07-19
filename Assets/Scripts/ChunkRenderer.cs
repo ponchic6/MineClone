@@ -60,14 +60,14 @@ public class ChunkRenderer : MonoBehaviour
         {
             return ChunkBlocksMaterial[x, y, z];
         }
-        else if (x < 0 && GameWorld._chunksData.ContainsKey(ChunkCoordinate + Vector2Int.left))
-            return GameWorld._chunksData[ChunkCoordinate + Vector2Int.left][15, y, z];
-        else if (x > 15 && GameWorld._chunksData.ContainsKey(ChunkCoordinate + Vector2Int.right))
-            return GameWorld._chunksData[ChunkCoordinate + Vector2Int.right][0, y, z];
-        else if (z < 0 && GameWorld._chunksData.ContainsKey(ChunkCoordinate + Vector2Int.down))
-            return GameWorld._chunksData[ChunkCoordinate + Vector2Int.down][x, y, 15];
-        else if (z > 15 && GameWorld._chunksData.ContainsKey(ChunkCoordinate + Vector2Int.up))
-            return GameWorld._chunksData[ChunkCoordinate + Vector2Int.up][x, y, 0];
+        else if (x < 0 && GameWorldRenderer._terrainChunks.ContainsKey(ChunkCoordinate + Vector2Int.left))
+            return GameWorldRenderer._terrainChunks[ChunkCoordinate + Vector2Int.left].ChunkBlocksMaterial[15, y, z];
+        else if (x > 15 && GameWorldRenderer._terrainChunks.ContainsKey(ChunkCoordinate + Vector2Int.right))
+            return GameWorldRenderer._terrainChunks[ChunkCoordinate + Vector2Int.right].ChunkBlocksMaterial[0, y, z];
+        else if (z < 0 && GameWorldRenderer._terrainChunks.ContainsKey(ChunkCoordinate + Vector2Int.down))
+            return GameWorldRenderer._terrainChunks[ChunkCoordinate + Vector2Int.down].ChunkBlocksMaterial[x, y, 15];
+        else if (z > 15 && GameWorldRenderer._terrainChunks.ContainsKey(ChunkCoordinate + Vector2Int.up))
+            return GameWorldRenderer._terrainChunks[ChunkCoordinate + Vector2Int.up].ChunkBlocksMaterial[x, y, 0];
         else return 0;
     }
 
